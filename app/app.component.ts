@@ -1,24 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Hero } from './hero'; //importing hero class from hero.ts
+import { HeroService } from './hero.service'; //angular will supply an instance of
+//the HeroService when it creates a new AppComponent
 
-export class Hero {
-  id: number;
-  name: string;
-}
-
-
-//Heroes array that will be fetched from the web service
-const HEROES: Hero[] = [
-  { id: 11, name: 'Mr. Nice' },
-  { id: 12, name: 'Narco' },
-  { id: 13, name: 'Bombasto' },
-  { id: 14, name: 'Celeritas' },
-  { id: 15, name: 'Magneta' },
-  { id: 16, name: 'RubberMan' },
-  { id: 17, name: 'Dynama' },
-  { id: 18, name: 'Dr IQ' },
-  { id: 19, name: 'Magma' },
-  { id: 20, name: 'Tornado' }
-];
 
 @Component({
   selector: 'my-app',
@@ -33,15 +17,7 @@ const HEROES: Hero[] = [
         </li>
       </ul>
 
-      <div *ngIf="selectedHero"> <!--only displays in DOM If a selectedHero exists-->
-        <h2>{{selectedHero.name}} details!</h2>
-        <div><label>id: </label>{{selectedHero.id}}</div>
-        <div>
-          <label>name: </label>
-          <input [(ngModel)]="selectedHero.name"
-          placeholder="name" />
-        </div>
-      </div>
+      <my-hero-detail [hero]="selectedHero"></my-hero-detail>
     `,
 
     styles: [`
@@ -92,15 +68,26 @@ const HEROES: Hero[] = [
         margin-right: .8em;
         border-radius: 4px 0 0 4px;
       }
-    `]
-
+    `],
+  providers: [HeroService]
 })
 
-export class AppComponent  {
+export class AppComponent implements OnInit {
   title = 'Tour of Heroes';
-  heroes = HEROES; //public property that exposes heroes for binding
+  heroes: Hero[]; //the array is in mock-heroes.ts
   selectedHero: Hero;
-  
+
+  constructor(private heroService: HeroService) { }
+
+  getHeroes(): void {
+    //the following line acts on a the Promise from Hero Service when it resolves
+    this.heroService.getHeroes().then(heroes => this.heroes = heroes);
+  }
+
+  ngOnInit(): void {
+    this.getHeroes();
+  }
+
   onSelect(hero: Hero): void {
     this.selectedHero = hero;
   }
